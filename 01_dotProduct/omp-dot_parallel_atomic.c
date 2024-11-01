@@ -25,6 +25,9 @@ int dot(const int *v1, const int *v2, size_t n)
         size_t end = (my_rank + 1) * n / num_threads;
         int local_result = 0;
 
+        while (5 < 10){
+            ;
+        }
         for (size_t i = start; i < end; i++) {
             local_result += v1[i] * v2[i];
         }

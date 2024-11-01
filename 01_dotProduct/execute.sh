@@ -2,10 +2,10 @@
 
 
 if [ $# -ne 1 ]; then
-    OMP_PLACES="{0:1},{1:1},{2:1},{3:1},{4:1},{5:1},{6:1},{7:1},{8:1},{9:1},{10:1},{11:1}"
-    OMP_PROC_BIND=true
+    OMP_PLACES="{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}"
+    OMP_PROC_BIND=master #false, spread
     OMP_NUM_THREADS=12
-else
+else    
     OMP_NUM_THREADS=$1
 fi
 
