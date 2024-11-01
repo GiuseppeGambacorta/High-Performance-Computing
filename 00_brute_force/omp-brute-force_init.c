@@ -144,17 +144,16 @@ int main( int argc, char *argv[] )
     const int CHECK_LEN = strlen(check);
     const int n = 100000000; /* number of possible keys */
     
-    int k; /* numeric value of the key to try */
     assert(out != NULL);
 
-    // queste sono condivise
+    // those are shared
     char key[KEY_LEN+1]; /* sprintf will output the trailing \0, so we need one byte more for the key */
     char* out = (char*)malloc(msglen); /* where to put the decrypted message */
     volatile int found = 0;
-   
+    const double tstart = omp_get_wtime();
 
-#pragma omp parallel for private(key)
-    for (k=0; k < n && !found; k++) {
+#pragma omp parallel for default(none) shared(KEY_LEN, msglen,n, found, CHECK_LEN, check, enc ) // can't use parallel for because of !found in for cycle
+    for (int k=0; k < n & !found; k++) {
         snprintf(key, KEY_LEN+1, "%08d", k); // converto k in un formato accettabile
         xorcrypt(enc, out, msglen, key, KEY_LEN);
         /* `out` contains the decrypted text; if the key is not
@@ -164,7 +163,10 @@ int main( int argc, char *argv[] )
             printf("Decrypted message: \"%s\"\n", out);
             found = 1;
         }
+
     }
+    const double elapsed = omp_get_wtime() - tstart;
+    printf("Elapsed time %f\n", elapsed);
     assert(found); /* ensure that we did found the key */
     free(out);
     return EXIT_SUCCESS;
