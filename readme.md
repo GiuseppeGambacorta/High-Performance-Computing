@@ -1,0 +1,1 @@
+https://theartofhpc.com/pcse/omp-affinity.html
