@@ -16,3 +16,8 @@ for file in "${files[@]}"; do
     echo "Running ${file%.c} with $NUMBER_OF_CORE cores"
     OMP_NUM_THREADS=$NUMBER_OF_CORE ./"${file%.c}"
 done
+
+
+for file in "${files[@]}"; do
+    rm ./"${file%.c}"
+done
