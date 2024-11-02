@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -lt 1 ]; then
-    echo "Usage: $0 <folder> [core_type] [num_cores]"
+if [ $# -lt 3 ]; then
+    echo "Usage: $0 <folder> <core_type> Optional: <num_cores>"
     exit 1
 fi
 
@@ -12,40 +12,34 @@ if [ ! -d "$FOLDER" ]; then
     exit 1
 fi
 
-if [ $# -ge 2 ]; then
-    if [ "$2" == "P" ]; then
-        OMP_PLACES="{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}"
-    elif [ "$2" == "E" ]; then
-        OMP_PLACES="{12},{13},{14},{15},{16},{17},{18},{19}"
-    else
-        echo "Invalid core type. Use 'P' for P-cores or 'E' for E-cores."
-        exit 1
-    fi
+
+if [ "$2" == "P" ]; then
+    PLACES="{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}"
+    CORENUM=12
+elif [ "$2" == "E" ]; then
+    PLACES="{12},{13},{14},{15},{16},{17},{18},{19}"
+    CORENUM=8
 else
-    OMP_PLACES="{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}"
+     PLACES="{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19}"
 fi
 
-OMP_PROC_BIND=true
+if [ $# -ge 3 ]; then
+    CORENUM=$3
+fi
 
+OMP_PROC=true
 
 
 files=$(find "$FOLDER" -maxdepth 1 -name "*.c")
+
 
 for file in $files; do
     gcc -std=c99 -Wall -Wextra -pedantic -fopenmp "$file" -o "${file%.c}"
 done
 
 for file in $files; do
-
-    if [ $# -ge 3 ]; then
-        echo "Running ${file%.c} with ${3} cores"
-        OMP_NUM_THREADS=$3 ./"${file%.c}"
-    else
-        echo "Running ${file%.c} with 12  cores"
-        OMP_NUM_THREADS=12 ./"${file%.c}"
-    fi
-
-   
+    echo "Running ${file%.c} with ${CORENUM}  cores"
+    OMP_NUM_THREADS=$CORENUM OMP_PROC_BIND=$OMP_PROC OMP_PLACES=$PLACES ./"${file%.c}"
 done
 
 for file in $files; do

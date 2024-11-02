@@ -19,7 +19,7 @@ elif [ "$2" == "E" ]; then
     PLACES="{12},{13},{14},{15},{16},{17},{18},{19}"
     CORENUM=8
 else
-    PLACES="{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19}"
+     PLACES="{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19}"
 fi
 
 if [ $# -ge 3 ]; then
@@ -30,13 +30,6 @@ OMP_PROC=true
 
 
 
-if [ $# -ge 4 ]; then
-    NUM=$4
-else
-    echo "Write the number for Fibonacci"
-    exit 1
-fi
-
 files=$(find "$FOLDER" -maxdepth 1 -name "*.c")
 
 for file in $files; do
@@ -44,9 +37,9 @@ for file in $files; do
 done
 
 for file in $files; do
-
-   echo "Running ${file%.c} with ${CORENUM}  cores"
-   OMP_NUM_THREADS=$CORENUM OMP_PROC_BIND=$OMP_PROC OMP_PLACES=$PLACES ./"${file%.c}"
+  
+     echo "Running ${file%.c} with ${CORENUM}  cores"
+    OMP_NUM_THREADS=$CORENUM OMP_PROC_BIND=$OMP_PROC OMP_PLACES=$PLACES ./"${file%.c}"
 
 done
 
