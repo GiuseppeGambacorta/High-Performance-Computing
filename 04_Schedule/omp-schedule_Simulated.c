@@ -211,12 +211,8 @@ void do_static(const int *vin, int *vout, int n)
         // Ciclo while per iterare sui blocchi successivi
         while (start < n) {
             for (int i = start; i <= end && i < n; i++) {
-                    if (i >= n) break;
-                if (arraycheck[i]) {
-                   
-                        printf("Thread %d is processing the same element %d\n", my_id, i);
-                
-                }
+                if (i >= n) break;
+               
                 vout[i] = fib_rec(vin[i]);
                 arraycheck[i] = 1;
 
@@ -224,12 +220,9 @@ void do_static(const int *vin, int *vout, int n)
                     printf("superato n\n");
                 }
              
-               if (my_id == 3) {
-                printf("Thread %d sta iniziando e finendo a %d %d\n", my_id, start, end);
+              
             }
-            }
-
-            // Aggiorna start ed end per il prossimo blocco
+              // Aggiorna start ed end per il prossimo blocco
             start += hopSize * number_of_threads;
             end += hopSize * number_of_threads;
 
@@ -240,6 +233,7 @@ void do_static(const int *vin, int *vout, int n)
             if (end >= n) break;
         }
 
+
         #pragma omp barrier
         if (my_id == 0) {
              for (int i = 0; i < n; i++) {
@@ -247,10 +241,10 @@ void do_static(const int *vin, int *vout, int n)
                 printf("Thread %d non ha processato l'elemento %d\n", my_id, i);
             }
         }
-        }
+     }
        
+    
     }
-
 }
 
 void do_dynamic(const int *vin, int *vout, int n)
