@@ -175,7 +175,6 @@ void do_static(const int *vin, int *vout, int n)
     if (chunk_size) {
         number_of_chunks = n / chunk_size;
         hopSize = n / number_of_chunks;
-        resto = n % chunk_size;
     }
     int arraycheck[n];
     for (int i = 0; i < n; i++) {
@@ -184,7 +183,6 @@ void do_static(const int *vin, int *vout, int n)
 
     printf("number of chunks %d\n", number_of_chunks);
     printf("hopSize %d\n", hopSize);
-    printf("resto %d\n", resto);
 
     #pragma omp parallel default(none) shared(n, vout, vin, chunk_size, number_of_chunks,hopSize, arraycheck)
     {
