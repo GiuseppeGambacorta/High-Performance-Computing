@@ -172,7 +172,6 @@ void do_static(const int *vin, int *vout, int n)
     const int chunk_size = 10; /* can be set to any value >= 1 */
     int number_of_chunks = 0;
     int hopSize = 0;
-    int resto = 0;
     if (chunk_size) {
         number_of_chunks = n / chunk_size;
         hopSize = n / number_of_chunks;
@@ -187,7 +186,7 @@ void do_static(const int *vin, int *vout, int n)
     printf("hopSize %d\n", hopSize);
     printf("resto %d\n", resto);
 
-    #pragma omp parallel default(none) shared(n, vout, vin, chunk_size, number_of_chunks, resto, hopSize, arraycheck)
+    #pragma omp parallel default(none) shared(n, vout, vin, chunk_size, number_of_chunks,hopSize, arraycheck)
     {
         int my_id = omp_get_thread_num();
         int number_of_threads = omp_get_num_threads();
