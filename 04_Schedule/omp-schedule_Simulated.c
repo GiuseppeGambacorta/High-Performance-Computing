@@ -170,23 +170,23 @@ void do_static(const int *vin, int *vout, int n)
        ensure that we never exceed the upper bound `n-1`.
     */
     const int chunk_size = 10; /* can be set to any value >= 1 */
-    int number_of_chunks=0;
+    int number_of_chunks = 0;
     int hopSize = 0;
     int resto = 0;
-    if (chunk_size){
-        number_of_chunks = n/ chunk_size;
+    if (chunk_size) {
+        number_of_chunks = n / chunk_size;
         hopSize = n / number_of_chunks;
-        resto = n%chunk_size;
+        resto = n % chunk_size;
     }
     int arraycheck[n];
-    for (int i = 0; i < n; i++){
+    for (int i = 0; i < n; i++) {
         arraycheck[i] = 0;
     }
 
-    printf("number of chunks %d",number_of_chunks);
-    printf("hopSize %d",hopSize);
-    printf("resto %d\n",resto);
-    
+    printf("number of chunks %d\n", number_of_chunks);
+    printf("hopSize %d\n", hopSize);
+    printf("resto %d\n", resto);
+
     #pragma omp parallel default(none) shared(n, vout, vin, chunk_size, number_of_chunks, resto, hopSize, arraycheck)
     {
         int my_id = omp_get_thread_num();
@@ -197,6 +197,12 @@ void do_static(const int *vin, int *vout, int n)
         if (chunk_size == 0) {
             start = (n * my_id) / number_of_threads;
             end = (n * (my_id + 1)) / number_of_threads;
+
+            for (int i = start; i <= end; i++) {
+                vout[i] = fib_rec(vin[i]);
+                arraycheck[i] = 1;
+            }
+              
         } else {
             start = (my_id * hopSize);
             end = ((my_id + 1) * hopSize) - 1;
@@ -206,47 +212,28 @@ void do_static(const int *vin, int *vout, int n)
                 printf("Thread %d: start %d, end %d\n", my_id, start, end);
             }
             #pragma omp barrier
-        }
 
-        // Ciclo while per iterare sui blocchi successivi
-        while (start < n) {
-            for (int i = start; i <= end && i < n; i++) {
-                if (i >= n) break;
-               
-                vout[i] = fib_rec(vin[i]);
-                arraycheck[i] = 1;
-
-                if (i>=n){
-                    printf("superato n\n");
+            while (start < n) {
+                for (int i = start; i <= end ; i++) {
+                    vout[i] = fib_rec(vin[i]);
+                    arraycheck[i] = 1;
                 }
-             
-              
+                start += hopSize * number_of_threads;
+                end += hopSize * number_of_threads;
+                if (end >= n) end = n;
             }
-              // Aggiorna start ed end per il prossimo blocco
-            start += hopSize * number_of_threads;
-            end += hopSize * number_of_threads;
-
-          
-
-            // Interrompe il ciclo se superiamo n
-            if (start >= n) break;
-            if (end >= n) break;
         }
-
 
         #pragma omp barrier
         if (my_id == 0) {
-             for (int i = 0; i < n; i++) {
-            if (arraycheck[i] == 0) {
-                printf("Thread %d non ha processato l'elemento %d\n", my_id, i);
+            for (int i = 0; i < n; i++) {
+                if (arraycheck[i] == 0) {
+                    printf("Thread %d non ha processato l'elemento %d\n", my_id, i);
+                }
             }
         }
-     }
-       
-    
     }
 }
-
 void do_dynamic(const int *vin, int *vout, int n)
 {
     /* [TODO] parallelize the following loop, simulating a
