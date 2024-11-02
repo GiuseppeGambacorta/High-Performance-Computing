@@ -225,7 +225,7 @@ int is_correct(const int* a, int n)
 
 int main( int argc, char* argv[] )
 {
-    int n = 20000000;
+    int n = 100000000;
 
     if ( argc > 2 ) {
         fprintf(stderr, "Usage: %s [n]\n", argv[0]);
