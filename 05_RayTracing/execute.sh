@@ -47,8 +47,16 @@ for file in $files; do
 done
 
 for file in $files; do
-    echo "Running ${file%.c} with ${OMP_NUM_THREADS} cores"
-    ./"${file%.c}" -s 800x600 < $IMAGE  > ${file%.c}.ppm
+
+
+   if [ $# -ge 3 ]; then
+        echo "Running ${file%.c} with ${3} cores"
+        OMP_NUM_THREADS=$3 ./"${file%.c}" -s 800x600 < $IMAGE  > ${file%.c}.ppm
+    else
+        echo "Running ${file%.c} with 12  cores"
+        OMP_NUM_THREADS=12 ./"${file%.c}" -s 800x600 < $IMAGE  > ${file%.c}.ppm
+    fi
+
     magick ${file%.c}.ppm ${file%.c}.jpeg
     rm ${file%.c}.ppm
 done

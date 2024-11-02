@@ -27,11 +27,7 @@ fi
 
 OMP_PROC_BIND=true
 
-if [ $# -ge 3 ]; then
-    OMP_NUM_THREADS=$3
-else
-    OMP_NUM_THREADS=12
-fi
+
 
 files=$(find "$FOLDER" -maxdepth 1 -name "*.c")
 
@@ -40,8 +36,18 @@ for file in $files; do
 done
 
 for file in $files; do
-    echo "Running ${file%.c} with ${OMP_NUM_THREADS} cores"
-    ./"${file%.c}"
+    for file in $files; do
+
+    if [ $# -ge 3 ]; then
+        echo "Running ${file%.c} with ${3} cores"
+        OMP_NUM_THREADS=$3 ./"${file%.c}"
+    else
+        echo "Running ${file%.c} with 12  cores"
+        OMP_NUM_THREADS=12 ./"${file%.c}"
+    fi
+
+   
+done
 done
 
 for file in $files; do

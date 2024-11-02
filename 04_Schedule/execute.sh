@@ -27,11 +27,7 @@ fi
 
 export OMP_PROC_BIND=true
 
-if [ $# -ge 3 ]; then
-    export OMP_NUM_THREADS=$3
-else
-    export OMP_NUM_THREADS=12
-fi
+
 
 if [ $# -ge 4 ]; then
     NUM=$4
@@ -47,8 +43,15 @@ for file in $files; do
 done
 
 for file in $files; do
-    echo "Running ${file%.c} with ${OMP_NUM_THREADS} cores and NUM=$NUM"
-    ./"${file%.c}" $NUM
+
+    if [ $# -ge 3 ]; then
+        echo "Running ${file%.c} with ${3} cores and NUM=$NUM"
+        OMP_NUM_THREADS=$3 ./"${file%.c}" $NUM
+    else
+        echo "Running ${file%.c} with 12 cores and NUM=$NUM"
+        OMP_NUM_THREADS=12 ./"${file%.c}" $NUM
+    fi
+
 done
 
 for file in $files; do
