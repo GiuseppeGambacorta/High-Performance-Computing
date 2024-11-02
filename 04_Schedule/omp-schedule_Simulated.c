@@ -71,6 +71,7 @@ Example:
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
 #include <omp.h>
 
 /* Recursive computation of the n-th Fibonacci number, for n=0, 1, 2, ...
@@ -173,7 +174,7 @@ void do_static(const int *vin, int *vout, int n)
     int number_of_chunks = 0;
     int hopSize = 0;
     if (chunk_size) {
-        number_of_chunks = n / chunk_size;
+        number_of_chunks = (n+chunk_size-1) / chunk_size;
         hopSize = n / number_of_chunks;
     }
     int arraycheck[n];
@@ -206,7 +207,7 @@ void do_static(const int *vin, int *vout, int n)
 
             #pragma omp critical
             {
-                printf("Thread %d: start %d, end %d\n", my_id, start, end);
+               // printf("Thread %d: start %d, end %d\n", my_id, start, end);
             }
             #pragma omp barrier
 
@@ -231,6 +232,12 @@ void do_static(const int *vin, int *vout, int n)
         }
     }
 }
+
+typedef struct {
+    int start;
+    int end;
+} chunk_t;
+
 void do_dynamic(const int *vin, int *vout, int n)
 {
     /* [TODO] parallelize the following loop, simulating a
@@ -254,11 +261,55 @@ void do_dynamic(const int *vin, int *vout, int n)
          }
        } while (my_idx < n);
     */
-    const int chunk_size = 1; /* can be set to any value >= 1 */
-#pragma omp parallel for schedule(dynamic, chunk_size)
-    for (int i=0; i<n; i++) {
-        vout[i] = fib_rec(vin[i]);
-        /* printf("vin[%d]=%d vout[%d]=%d\n", i, vin[i], i, vout[i]); */
+    const int chunk_size = 10; /* can be set to any value >= 1 */
+    int number_of_chunks = 0;
+    int hopSize = 0;
+
+    if (chunk_size) {
+        number_of_chunks = (n + chunk_size - 1) / chunk_size; // Calcola il numero di chunk correttamente
+        hopSize = chunk_size;
+    }
+    int arraycheck[n];
+    for (int i = 0; i < n; i++) {
+        arraycheck[i] = 0;
+    }
+    chunk_t chunks[number_of_chunks];
+    int number_of_structs = 0;
+    int toChoose = 0;
+    for (int i = 0; i < number_of_chunks; i++) {
+        chunks[i].start = i * hopSize;
+        chunks[i].end = (i + 1) * hopSize;
+        if (chunks[i].end > n) {
+            chunks[i].end = n; 
+        }
+        number_of_structs = i + 1;
+    }
+
+    printf("number of chunks %d\n", number_of_chunks);
+    printf("hopSize %d\n", hopSize);
+
+    #pragma omp parallel default(none) shared(chunks, number_of_structs, n, toChoose, vout, vin)
+    {
+        chunk_t internal_chunk;
+        int internal_choose;
+        while (true) {
+            #pragma omp critical
+            {
+                internal_choose = toChoose;
+                toChoose++;
+            }
+
+            if (internal_choose >= number_of_structs) {
+                break;
+            }
+
+            internal_chunk = chunks[internal_choose];
+
+            for (int i = internal_chunk.start; i < internal_chunk.end; i++) {
+                vout[i] = fib_rec(vin[i]);
+                /* printf("vin[%d]=%d vout[%d]=%d\n", i, vin[i], i, vout[i]); */
+            }
+        }
     }
 }
 
