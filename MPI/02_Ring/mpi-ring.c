@@ -97,26 +97,25 @@ int main( int argc, char *argv[] )
         MPI_Recv(&number,1,MPI_INT,comm_sz-1,0,MPI_COMM_WORLD,&status);
         printf("rank %d riceved %d at round %d\n", my_rank,number,round+1);
       }
-      number = -1;
-      MPI_Send(&number,1,MPI_INT,toSend,0,MPI_COMM_WORLD);
-      printf("uscita finale 0\n");
+      
 
     } else {
       int number = 0;
       int toSend = (my_rank +1 < comm_sz? my_rank +1 : 0);
-      while (1){
+
+      for (int i =0; i<K;i++){
         MPI_Recv(&number,1,MPI_INT,my_rank-1,0,MPI_COMM_WORLD,&status);
-        if (number == -1){
-          MPI_Send(&number,1,MPI_INT,toSend,0,MPI_COMM_WORLD);
-          printf("uscita finale %d\n", my_rank);
-          break;
-        }
         printf("rank %d riceved %d\n", my_rank,number);
         number++;
         
         MPI_Send(&number,1,MPI_INT,toSend,0,MPI_COMM_WORLD);
+
       }
+     
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    printf("uscita finale %d\n", my_rank);
 
     
 
