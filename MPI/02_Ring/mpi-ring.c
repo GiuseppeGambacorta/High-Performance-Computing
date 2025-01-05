@@ -90,8 +90,6 @@ int main( int argc, char *argv[] )
       int toSend = (my_rank +1 < comm_sz? my_rank +1 : MPI_PROC_NULL);
       for (int i= 0; i <K ; i++){
         number++;
-        
-        printf("ingresso 0\n");
         MPI_Send(&number,1,MPI_INT,toSend,0,MPI_COMM_WORLD);
         printf("rank %d send %d at round %d\n", my_rank,number,round);
         MPI_Recv(&number,1,MPI_INT,comm_sz-1,0,MPI_COMM_WORLD,&status);
@@ -107,15 +105,13 @@ int main( int argc, char *argv[] )
         MPI_Recv(&number,1,MPI_INT,my_rank-1,0,MPI_COMM_WORLD,&status);
         printf("rank %d riceved %d\n", my_rank,number);
         number++;
-        
         MPI_Send(&number,1,MPI_INT,toSend,0,MPI_COMM_WORLD);
-
       }
      
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
-    printf("uscita finale %d\n", my_rank);
+    printf("final exit %d\n", my_rank);
 
     
 
