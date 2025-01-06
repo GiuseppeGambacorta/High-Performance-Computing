@@ -73,14 +73,12 @@ Example:
 
 #define BLKDIM 32
 
-__global__ void matsum_kernel(const float *p, const float *q, float *r, int n) {
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (row < n && col < n) {
-        int index = row * n + col;
-        r[index] = p[index] + q[index];
-    }
+__global__ void matsum_kernel( float *p, float *q, float *r, int n )
+{
+    const int i = blockIdx.y * blockDim.y + threadIdx.y;
+    const int j = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( i<n && j<n )
+        r[i*n + j] = p[i*n + j] + q[i*n + j];
 }
 
 void matsum( float *p, float *q, float *r, int n )

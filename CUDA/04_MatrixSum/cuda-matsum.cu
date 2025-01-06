@@ -71,43 +71,21 @@ Example:
 
 #include "hpc.h"
 
-#define BLKDIM 32
-
-__global__ void matsum_kernel(const float *p, const float *q, float *r, int n) {
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (row < n && col < n) {
-        int index = row * n + col;
-        r[index] = p[index] + q[index];
-    }
-}
 
 void matsum( float *p, float *q, float *r, int n )
 {
-    float *d_p, *d_q, *d_r;	  /* device copies of p, q, r */
-    const size_t size = n*n*sizeof(*p);
-    dim3 block(BLKDIM, BLKDIM);
-    dim3 grid((n+BLKDIM-1)/BLKDIM, (n+BLKDIM-1)/BLKDIM);
-
-    /* Allocate space for device copies of p, q, r */
-    cudaMalloc((void **)&d_p, size);
-    cudaMalloc((void **)&d_q, size);
-    cudaMalloc((void **)&d_r, size);
-
-    /* Copy inputs to device */
-    cudaMemcpy(d_p, p, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_q, q, size, cudaMemcpyHostToDevice);
-
-    /* Launch matsum() kernel on GPU */
-    matsum_kernel<<<grid, block>>>(d_p, d_q, d_r, n);
-
-    /* Copy result back to host */
-    cudaMemcpy(r, d_r, size, cudaMemcpyDeviceToHost);
-
-    cudaFree(d_p);
-    cudaFree(d_q);
-    cudaFree(d_r);
+    /* [TODO] Modify the body of this function to
+       - allocate memory on the device
+       - copy p and q to the device
+       - call an appropriate kernel
+       - copy the result from the device to the host
+       - free memory on the device
+    */
+    for (int i=0; i<n; i++) {
+        for (int j=0; j<n; j++) {
+            r[i*n + j] = p[i*n + j] + q[i*n + j];
+        }
+    }
 }
 
 /* Initialize square matrix p of size nxn */
